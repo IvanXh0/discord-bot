@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // Specify ECMAScript target version
+    "module": "commonjs", // Use CommonJS module system
+    "outDir": "./dist", // Output directory for compiled JavaScript files
+    "rootDir": "./app", // Root directory of your TypeScript source files
+    "strict": true, // Enable strict type-checking options
+    "noEmitOnError": false, // Allow emitting files even if there are type errors
+    "esModuleInterop": true, // Enables interop between CommonJS and ES Modules
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
+    "skipLibCheck": true // Skip type checking of declaration files
+  },
+  "include": ["app/**/*"], // Include all TypeScript files in the 'app' directory
+  "exclude": ["node_modules"] // Exclude the 'node_modules' directory
+}
