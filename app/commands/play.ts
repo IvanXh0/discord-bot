@@ -5,7 +5,6 @@ import {
   TextChannel,
 } from "discord.js";
 import { player } from "../init/player";
-import { QueryType } from "discord-player";
 
 export const data = new SlashCommandBuilder()
   .setName("play")
@@ -26,38 +25,28 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
   if (!member.voice.channel) {
     return interaction.followUp({
       content: "You need to join a voice channel first!",
+      ephemeral: true,
     });
   }
-
-  const searchResult = await player.search(query, {
-    requestedBy: interaction.user,
-    searchEngine: QueryType.AUTO,
-  });
-
-  if (!searchResult || !searchResult.tracks.length) {
-    return interaction.followUp({ content: "No results were found!" });
-  }
-
-  const queue = await player.nodes.create(interaction.guild!, {
-    metadata: interaction.channel as TextChannel,
-  });
 
   try {
-    if (!queue.connection) await queue.connect(member.voice.channel);
-  } catch {
-    player.nodes.delete(interaction.guildId!);
+    const result = await player.play(member.voice.channel, query, {
+      nodeOptions: {
+        metadata: interaction.channel as TextChannel,
+      },
+    });
+
+    const track = result.track;
+
     return interaction.followUp({
-      content: "Could not join your voice channel!",
+      content: `🎶 | Now playing: **${track.title}**`,
+    });
+  } catch (error) {
+    console.error(`Error playing track: ${(error as Error).message}`);
+    return interaction.followUp({
+      content: `❌ | There was an error while trying to play the track: ${
+        (error as Error).message
+      }`,
     });
   }
-
-  queue.addTrack(searchResult.tracks[0]);
-
-  if (!queue.isPlaying) {
-    await queue.node.play();
-  }
-
-  return interaction.followUp({
-    content: `🎶 | Queued: **${searchResult.tracks[0].title}**`,
-  });
 };
