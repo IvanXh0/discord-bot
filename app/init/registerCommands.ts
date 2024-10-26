@@ -6,6 +6,7 @@ import { clientId, token, guildId } from "../config";
 
 const rest = new REST({ version: "9" }).setToken(token);
 
+// @ts-expect-error need to fix this xd
 const commandData = commands.map((command) => command.data.toJSON());
 
 const isDevelopment = process.env.NODE_ENV !== "production";
