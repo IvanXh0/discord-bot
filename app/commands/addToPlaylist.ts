@@ -9,40 +9,84 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("song")
-      .setDescription("Name/URL of the song")
-      .setRequired(true),
+      .setDescription(
+        "Name/URL of the song | press enter to add currently playing song",
+      )
+      .setRequired(false),
   );
 
 export const execute = async (interaction: ChatInputCommandInteraction) => {
-  const songQuery = interaction.options.getString("song", true);
-  const channelId = interaction.channelId;
-
   await interaction.deferReply();
 
-  const searchResult = await player.search(songQuery, {
-    requestedBy: interaction.user,
-    searchEngine: "youtubeSearch",
-  });
+  try {
+    const songQuery = interaction.options.getString("song");
+    const channelId = interaction.channelId;
 
-  if (!searchResult.tracks.length)
-    return interaction.editReply("No results found for your query");
+    let trackInfo;
 
-  const trackInfo = searchResult.tracks[0];
+    if (songQuery) {
+      const searchResult = await player.search(songQuery, {
+        requestedBy: interaction.user,
+        searchEngine: "youtubeSearch",
+      });
 
-  const track: Track = {
-    title: trackInfo.title,
-    url: trackInfo.url,
-    duration: trackInfo.duration,
-    addedAt: new Date(),
-  };
+      if (!searchResult || !searchResult.tracks.length) {
+        return interaction.editReply("❌ | No results found for your query.");
+      }
 
-  await ChannelPlaylist.findOneAndUpdate(
-    { channelId },
-    { $push: { tracks: track } },
-    { upsert: true, new: true },
-  );
+      trackInfo = searchResult.tracks[0];
+    } else {
+      const queue = player.nodes.get(interaction.guildId!);
 
-  return interaction.editReply(
-    `Added ${track.title} to the playlist for this channel`,
-  );
+      if (!queue || !queue.currentTrack) {
+        return interaction.editReply(
+          "❌ | There is no song currently playing.",
+        );
+      }
+
+      trackInfo = queue.currentTrack;
+    }
+
+    const track: Track = {
+      title: trackInfo.title,
+      url: trackInfo.url,
+      duration: trackInfo.duration,
+      addedAt: new Date(),
+    };
+
+    const channelPlaylist = await ChannelPlaylist.findOne({ channelId });
+
+    const songExists = channelPlaylist?.tracks?.some(
+      ({ url }) => url === track.url,
+    );
+
+    if (songExists) {
+      return interaction.editReply(
+        `⚠️ | **${track.title}** is already in the playlist for this channel.`,
+      );
+    }
+
+    await ChannelPlaylist.findOneAndUpdate(
+      { channelId },
+      { $push: { tracks: track } },
+      { upsert: true, new: true },
+    );
+
+    return interaction.editReply(
+      `✅ | Added **${track.title}** to the playlist for this channel.`,
+    );
+  } catch (error) {
+    console.error(
+      `Error in addtoplaylist command: ${(error as Error).message}`,
+    );
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply(
+        "❌ | An error occurred while processing your request.",
+      );
+    } else {
+      await interaction.reply(
+        "❌ | An error occurred while processing your request.",
+      );
+    }
+  }
 };
