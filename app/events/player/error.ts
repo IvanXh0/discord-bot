@@ -12,3 +12,14 @@ player.events.on("error", (queue: GuildQueue<Metadata>, error) => {
     queue.metadata.disconnectTimeout = undefined;
   }
 });
+
+player.events.on("playerError", (queue, error) => {
+  const { channel, disconnectTimeout } = queue.metadata;
+  console.error(`Error in queue: ${error.message}`);
+  channel.send(`❌ | An error occurred: ${error.message}`);
+
+  if (disconnectTimeout) {
+    clearTimeout(disconnectTimeout);
+    queue.metadata.disconnectTimeout = undefined;
+  }
+});
