@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("query")
       .setDescription("The song you want to play")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const execute = async (interaction: ChatInputCommandInteraction) => {
@@ -43,7 +43,7 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 
     const track = result.track;
 
-    return interaction.followUp({
+    return await interaction.followUp({
       content: `🎶 | Now playing: **${track.title}**`,
     });
   } catch (error) {
