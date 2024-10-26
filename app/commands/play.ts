@@ -32,7 +32,12 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
   try {
     const result = await player.play(member.voice.channel, query, {
       nodeOptions: {
-        metadata: interaction.channel as TextChannel,
+        metadata: {
+          channel: interaction.channel as TextChannel,
+        },
+        leaveOnEnd: false,
+        leaveOnStop: false,
+        leaveOnEmpty: false,
       },
     });
 

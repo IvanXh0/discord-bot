@@ -11,6 +11,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   }
 
   try {
+    // @ts-expect-error i need to fix this xd
     await command.execute(interaction);
   } catch (error) {
     console.error(error);

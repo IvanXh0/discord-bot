@@ -1,10 +1,14 @@
 import { player } from "../../init/player";
 import { GuildQueue } from "discord-player";
-import { TextChannel } from "discord.js";
+import { Metadata } from "../../types/Metadata";
 
-player.events.on("error", (queue: GuildQueue, error: Error) => {
-  console.error(`Error in player: ${error.message}`);
-  (queue.metadata as TextChannel).send(
-    `❌ | An error occurred: ${error.message}`
-  );
+player.events.on("error", (queue: GuildQueue<Metadata>, error) => {
+  const { channel, disconnectTimeout } = queue.metadata;
+  console.error(`Error in queue: ${error.message}`);
+  channel.send(`❌ | An error occurred: ${error.message}`);
+
+  if (disconnectTimeout) {
+    clearTimeout(disconnectTimeout);
+    queue.metadata.disconnectTimeout = undefined;
+  }
 });
