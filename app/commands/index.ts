@@ -4,6 +4,7 @@ import * as skipCommand from "./skip";
 import * as stopCommand from "./stop";
 import * as addToPlaylistCommand from "./addToPlaylist";
 import * as listPlaylistCommand from "./listPlaylist";
+import * as playPlaylistCommand from "./playPlaylist";
 
 export const commands = new Collection();
 
@@ -12,3 +13,4 @@ commands.set(skipCommand.data.name, skipCommand);
 commands.set(stopCommand.data.name, stopCommand);
 commands.set(addToPlaylistCommand.data.name, addToPlaylistCommand);
 commands.set(listPlaylistCommand.data.name, listPlaylistCommand);
+commands.set(playPlaylistCommand.data.name, playPlaylistCommand);
