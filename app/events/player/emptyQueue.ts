@@ -11,5 +11,5 @@ player.events.on("emptyQueue", (queue: GuildQueue<Metadata>) => {
     channel.send("❌ | No more sons in the queue! Si idam brat...");
     queue.delete();
     queue.connection?.disconnect();
-  }, 30000);
+  }, 60000);
 });

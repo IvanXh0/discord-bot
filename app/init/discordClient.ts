@@ -9,5 +9,3 @@ export const client = new Client({
   ],
   partials: [Partials.Channel],
 });
-
-client.login(process.env.DISCORD_TOKEN);
