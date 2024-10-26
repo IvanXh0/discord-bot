@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Track {
+  _id?: string;
   title: string;
   url: string;
   duration: string;
