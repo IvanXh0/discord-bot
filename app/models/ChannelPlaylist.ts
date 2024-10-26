@@ -13,16 +13,21 @@ export interface ChannelPlaylist extends Document {
 }
 
 const TrackSchema = new Schema<Track>({
-  title: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
   url: { type: String, required: true },
   duration: { type: String, required: true },
   addedAt: { type: Date, default: Date.now },
 });
 
-const ChannelPlaylistSchema = new Schema<ChannelPlaylist>({
-  channelId: { type: String, required: true, unique: true },
-  tracks: { type: [TrackSchema], default: [] },
-});
+const ChannelPlaylistSchema = new Schema<ChannelPlaylist>(
+  {
+    channelId: { type: String, required: true, unique: true },
+    tracks: { type: [TrackSchema], default: [] },
+  },
+  {
+    autoIndex: false,
+  },
+);
 
 export const ChannelPlaylist = mongoose.model<ChannelPlaylist>(
   "ChannelPlaylist",
