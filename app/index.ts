@@ -14,5 +14,7 @@ import "./init/registerCommands";
 
 import { client } from "./init/discordClient";
 import { token } from "./config";
+import { connectDB } from "./init/database";
 
+connectDB();
 client.login(token);

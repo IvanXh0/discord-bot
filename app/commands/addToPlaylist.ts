@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction } from "discord.js";
-
-const songs = [];
+import { player } from "../init/player";
+import { ChannelPlaylist, Track } from "../models/ChannelPlaylist";
 
 export const data = new SlashCommandBuilder()
   .setName("addtoplaylist")
@@ -14,12 +14,35 @@ export const data = new SlashCommandBuilder()
   );
 
 export const execute = async (interaction: ChatInputCommandInteraction) => {
-  const songQuery = interaction.options.getString("song");
-  console.log(songQuery);
+  const songQuery = interaction.options.getString("song", true);
+  const channelId = interaction.channelId;
 
-  const userId = interaction.user.id;
+  await interaction.deferReply();
 
-  console.log(userId);
+  const searchResult = await player.search(songQuery, {
+    requestedBy: interaction.user,
+    searchEngine: "youtubeSearch",
+  });
 
-  if (songQuery) songs.push(songQuery);
+  if (!searchResult.tracks.length)
+    return interaction.editReply("No results found for your query");
+
+  const trackInfo = searchResult.tracks[0];
+
+  const track: Track = {
+    title: trackInfo.title,
+    url: trackInfo.url,
+    duration: trackInfo.duration,
+    addedAt: new Date(),
+  };
+
+  await ChannelPlaylist.findOneAndUpdate(
+    { channelId },
+    { $push: { tracks: track } },
+    { upsert: true, new: true },
+  );
+
+  return interaction.editReply(
+    `Added ${track.title} to the playlist for this channel`,
+  );
 };
