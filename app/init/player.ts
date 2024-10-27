@@ -12,3 +12,5 @@ export const player = new Player(client, {
     },
   },
 });
+
+player.extractors.loadDefault();
